@@ -1,52 +1,30 @@
 pipeline {
+    agent any
 
-    agent any
+    stages {
 
- 
+        stage('Clone') {
+            steps {
+                echo 'Cloning Repository'
+            }
+        }
 
-    environment {
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t myapp .'
+            }
+        }
 
-        IMAGE_NAME = "jenkins-node-app"
+        stage('Run Container') {
+            steps {
+                sh 'docker run -d -p 8081:80 myapp'
+            }
+        }
 
-        CONTAINER_NAME = "jenkins-container"
-
-    }
-
- 
-
-    stages {
-
- 
-
-        stage('Clone Code') {
-
-            steps {
-
-                git branch: 'main',
-
-                credentialsId: 'github-creds',
-
-                url: 'https://github.com/anilkumargunturu88-art/.gitjenkins-pipeline.git'
-
-            }
-
-        }
-
- 
-
-        stage('Build Docker Image') {
-
-            steps {
-
-                sh 'docker build -t $IMAGE_NAME .'
-
-            }
-
-        }
-
- 
-stage('Remove Old Container')steps {sh 'docker rm -f $CONTAINER_NAME || true'}}stage('Deploy Container') {steps {sh '''docker run -d \--name $CONTAINER_NAME \-p 80:3000 \$IMAGE_NAME'''}}}post}success{echo 'Pipeline executed successfully'}failure{echo 'Pipeline failed'}}}
-post{success { echo 'Pipeline executed successfully' }
- failure {
- echo 'Pipeline failed' }    }
+        stage('Deployment') {
+            steps {
+                echo 'Application Deployed Successfully'
+            }
+        }
+    }
 }
